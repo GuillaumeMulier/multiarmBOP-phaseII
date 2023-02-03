@@ -1,0 +1,47 @@
+# History files
+.Rhistory
+.Rapp.history
+# User-specific files
+.Ruserdata
+# Output files from R CMD build
+/*.tar.gz
+# Output files from R CMD check
+/*.Rcheck/
+# RStudio files
+.Rproj.user/
+# produced vignettes
+vignettes/*.html
+vignettes/*.pdf
+# OAuth2 token, see https://github.com/hadley/httr/releases/tag/v0.3
+.httr-oauth
+# knitr and R markdown default cache directories
+*_cache/
+/cache/
+# Temporary files created by R markdown
+*.utf8.md
+*.knit.md
+# R Environment Variables
+.Renviron
+README.html
+# Dossier données et archives
+donnees/
+Archives/
+Outputs/
+# Non used scripts
+R/comp_thallsimonestey.R
+R/comparaison_BOP2.R
+R/comparaison_simon.R
+R/exemple_azaplus_complet.R
+R/figure_scenars.R
+R/script_verif_articleBOP2.R
+R/test_integrate.R
+R/test_cutoffs.R
+R/simu_vsref_working.R
+R/simu_vscont_working.R
+R/plot_vsref_working.R
+R/plot_vscont_working.R
+R/plot_seuils_working.R
+R/calcul_nsn.R
+Data/ex_clinique/data_example.Rdata
+
+Rplot.jpeg
