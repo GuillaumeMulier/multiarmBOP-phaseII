@@ -24,6 +24,7 @@ This repository is organized as follows:
     - plot_vscont.R = figures of article, section controlled design;
     - plot_vsref.R = figures of article, section uncontrolled design;
     - set-up.R = install the packages required for the scripts;
+    - simu_sens.R = sensitivity simulations asked by reviewers;
     - simu_vscont.R = simulations for controlled setting;
     - simu_vsref.R = simulations for uncontrolled setting.
 - Data = data files:

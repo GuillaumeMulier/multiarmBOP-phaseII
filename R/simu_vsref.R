@@ -324,7 +324,7 @@ data_ggplot_13vsref <- rbind(tab_Cnmultiarm, tab_Cnbonferr, tab_Cnmonoarm, tab_G
 tab_Ralpha <- data.frame(
   methode = c("Multiarm C<sub>n</sub>", "Bonferroni C<sub>n</sub>", "Monoarm C<sub>n</sub>", "Multiarm &epsilon;", "Bonferroni &epsilon;", "Monoarm &epsilon;", "Holm C<sub>n</sub>"),
   global_alpha = c(as.numeric(opchar_multivar[["Global H0"]][["carac_globales"]]["rejet_glob"]),
-                   as.numeric(opchar_multivar[["Global H0"]][["carac_globales"]]["rejet_glob"]),
+                   as.numeric(opchar_bonfvar[["Global H0"]][["carac_globales"]]["rejet_glob"]),
                    lapply(opchar_monovar[["Global H0"]], "[[", "essais") %>% 
                      do.call(what = "rbind", args = .) %>% 
                      group_by(n_simu) %>% 
