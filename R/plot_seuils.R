@@ -15,7 +15,7 @@ library(officer)
 library(glue)
 library(grid)
 
-theme_set(theme_light() +
+theme_set(theme_light(base_size = 16) +
             theme(legend.text = element_markdown(),
                   plot.title = element_markdown(),
                   axis.title.y = element_markdown(size = 12),
@@ -149,7 +149,7 @@ plot_fut_unc <- ggplot() +
            ymin = c(calcul_cn_holm(seq(0, 29, 1), 3, 60, .535, .8), calcul_cn_holm(c(seq(30, 59, 1), 59, 60), 1, 60, .535, .8)), 
            ymax = c(calcul_cn_holm(seq(0, 59, 1), 3, 60, .535, .8), calcul_cn(c(59, 60), 60, .63, .93)), alpha = .3, fill = "#40a746") +
   geom_function(fun = ~ calcul_cn(.x, 60, .78, .9), aes(color = "C<sub>n</sub><sup>m</sup>"), size = 1) +
-  # geom_function(fun = ~ calcul_cn(.x, 60, .63, .93), aes(color = "C<sub>n</sub><sup>s</sup>"), size = 1) +
+  geom_function(fun = ~ calcul_cn(.x, 60, .63, .93), aes(color = "C<sub>n</sub>"), size = 1) +
   geom_line(mapping = aes(x = c(seq(0, 59, 1), 59, 60), 
            y = c(calcul_cn_holm(seq(0, 29, 1), 3, 60, .535, .8), calcul_cn_holm(c(seq(30, 59, 1), 59, 60), 1, 60, .535, .8)),
            color = "C<sub>n</sub><sup>m,a</sup>"), size = 1) +
@@ -163,26 +163,28 @@ plot_fut_unc <- ggplot() +
              aes(x = x, y = y, color = "C<sub>n</sub><sup>m</sup>", shape = "C<sub>n</sub><sup>m</sup>"), size = 4) +
   geom_point(data = data.frame(x = seq(0, 60, 15), y = NA_real_),
              aes(x = x, y = y, color = "C<sub>n</sub><sup>m,a</sup>", shape = "C<sub>n</sub><sup>m,a</sup>"), size = 4) +
-  # geom_point(data = data.frame(x = seq(15, 60, 15), y = calcul_cn(abscisse = seq(15, 60, 15), N = 60, C = .63, Gamm = .93)),
-  #            aes(x = x, y = y, color = "C<sub>n</sub><sup>s</sup>", shape = "C<sub>n</sub><sup>s</sup>"), size = 4) +
+  geom_point(data = data.frame(x = seq(15, 60, 15), y = calcul_cn(abscisse = seq(15, 60, 15), N = 60, C = .63, Gamm = .93)),
+             aes(x = x, y = y, color = "C<sub>n</sub>", shape = "C<sub>n</sub>"), size = 4) +
   geom_segment(aes(color = "&epsilon;<sup>m</sup>", x = 0, xend = 60, y = 1 - .71, yend = 1 - .71), size = 1) +
   geom_point(data = data.frame(x = seq(15, 60, 15), y = 1 - .71),
              aes(x = x, y = y, color = "&epsilon;<sup>m</sup>", shape = "&epsilon;<sup>m</sup>"), size = 4) +
   scale_shape_manual(name = if (couleur != "français") {"Type of threshold"} else {"Type de seuil"},
-                     values = c(19, NA, 17),
+                     values = c(19, 17, NA, 18),
                      labels = if (couleur != "français") {waiver()} else {c("C<sub>n</sub> AA", "C<sub>n</sub> mono-bras", "C<sub>n</sub> multi-bras", "&epsilon; multi-bras")}) +
   scale_color_manual(name = if (couleur != "français") {"Type of threshold"} else {"Type de seuil"}, 
-                     values = c("#c63b1d", "#40a746", "#dc7f16"),
+                     values = c("#c63b1d", "darkblue", "#40a746", "#dc7f16"),
                      labels = if (couleur != "français") {waiver()} else {c("C<sub>n</sub> AA", "C<sub>n</sub> mono-bras", "C<sub>n</sub> multi-bras", "&epsilon; multi-bras")}) +
-  scale_x_continuous(name = if (couleur != "français") {"Number of enrolled patients in each arm"} else {"Nombre de patients recrutés dans chaque bras"}, 
+  scale_x_continuous(name = if (couleur != "français") {"Number of enrolled patients\nin each arm"} else {"Nombre de patients recrutés dans chaque bras"}, 
                      expand = c(0, 1), breaks = seq(0, 60, 15), limits = c(0, 60)) +
   scale_y_continuous(name = "C<sub>n</sub> / &epsilon;<sub>Eff</sub>", limits = c(0, 1), expand = c(0, .01), breaks = seq(0, 1, .2)) +
   theme(panel.grid.minor = element_blank(),
         legend.position = "bottom",
         legend.text = element_markdown(size = 14),
         legend.title = element_markdown(size = 20)) +
-  guides(shape = guide_legend(override.aes = list(size = c(5, 1.25, 5), linetype = c(0, 1, 0))))
-legende <- get_legend(plot_fut_unc)
+  guides(shape = guide_legend(override.aes = list(size = c(5, 5, 1.25, 5), linetype = c(0, 0, 1, 0))))
+# legende <- get_legend(plot_fut_unc)
+legende <- ggplotGrob(plot_fut_unc)$grob[[17]]
+
 
 # Toxicity
 plot_tox_unc <- ggplot() +
@@ -190,7 +192,7 @@ plot_tox_unc <- ggplot() +
            ymin = c(calcul_cn_holm(seq(0, 29, 1), 3, 60, .535, .8), calcul_cn_holm(c(seq(30, 59, 1), 59, 60), 1, 60, .535, .8)), 
            ymax = c(calcul_cn_holm(seq(0, 59, 1), 3, 60, .535, .8), calcul_cn(c(59, 60), 60, .63, .93)), alpha = .3, fill = "#40a746") +
   geom_function(fun = ~ calcul_cn(.x, 60, .78, .9), aes(color = "C<sub>n</sub><sup>m</sup>"), size = 1) +
-  # geom_function(fun = ~ calcul_cn(.x, 60, .63, .93), aes(color = "C<sub>n</sub><sup>s</sup>"), size = 1) +
+  geom_function(fun = ~ calcul_cn(.x, 60, .63, .93), aes(color = "C<sub>n</sub>"), size = 1) +
   geom_line(mapping = aes(x = c(seq(0, 59, 1), 59, 60), 
                           y = c(calcul_cn_holm(seq(0, 29, 1), 3, 60, .535, .8), calcul_cn_holm(c(seq(30, 59, 1), 59, 60), 1, 60, .535, .8)),
                           color = "C<sub>n</sub><sup>m,a</sup>"), size = 1) +
@@ -203,20 +205,20 @@ plot_tox_unc <- ggplot() +
              aes(x = x, y = y, color = "C<sub>n</sub><sup>m</sup>", shape = "C<sub>n</sub><sup>m</sup>"), size = 4) +
   geom_point(data = data.frame(x = seq(0, 60, 15), y = NA_real_),
              aes(x = x, y = y, color = "C<sub>n</sub><sup>m,a</sup>", shape = "C<sub>n</sub><sup>m,a</sup>"), size = 4) +
-  # geom_point(data = data.frame(x = seq(15, 60, 15), y = calcul_cn(abscisse = seq(15, 60, 15), N = 60, C = .63, Gamm = .93)),
-  #            aes(x = x, y = y, color = "C<sub>n</sub><sup>s</sup>", shape = "C<sub>n</sub><sup>s</sup>"), size = 4) +
+  geom_point(data = data.frame(x = seq(15, 60, 15), y = calcul_cn(abscisse = seq(15, 60, 15), N = 60, C = .63, Gamm = .93)),
+             aes(x = x, y = y, color = "C<sub>n</sub>", shape = "C<sub>n</sub>"), size = 4) +
   geom_segment(aes(color = "&epsilon;<sup>m</sup>", x = 0, xend = 60, y = 1 - .43, yend = 1 - .43), size = 1) +
   geom_point(data = data.frame(x = seq(15, 60, 15), y = 1 - .43),
              aes(x = x, y = y, color = "&epsilon;<sup>m</sup>", shape = "&epsilon;<sup>m</sup>"), size = 4) +
   scale_shape_manual(name = if (couleur != "français") {"Type of threshold"} else {"Type de seuil"},
-                     values = c(19, NA, 17),
+                     values = c(19, 17, NA, 18),
                      labels = if (couleur != "français") {waiver()} else {c("C<sub>n</sub> AA", "C<sub>n</sub> mono-bras", "C<sub>n</sub> multi-bras", "&epsilon; multi-bras")}) +
   scale_color_manual(name = if (couleur != "français") {"Type of threshold"} else {"Type de seuil"}, 
-                     values = c("#c63b1d", "#40a746", "#dc7f16"),
+                     values = c("#c63b1d", "darkblue", "#40a746", "#dc7f16"),
                      labels = if (couleur != "français") {waiver()} else {c("C<sub>n</sub> AA", "C<sub>n</sub> mono-bras", "C<sub>n</sub> multi-bras", "&epsilon; multi-bras")}) +
-  scale_x_continuous(name = if (couleur != "français") {"Number of enrolled patients in each arm"} else {"Nombre de patients recrutés dans chaque bras"}, 
+  scale_x_continuous(name = if (couleur != "français") {"Number of enrolled patients\nin each arm"} else {"Nombre de patients recrutés dans chaque bras"}, 
                      expand = c(0, 1), breaks = seq(0, 60, 15), limits = c(0, 60)) +
-  scale_y_continuous(name = "C<sub>n</sub> / &epsilon;<sub>Eff</sub>", limits = c(0, 1), expand = c(0, .01), breaks = seq(0, 1, .2)) +
+  scale_y_continuous(name = "C<sub>n</sub> / &epsilon;<sub>Tox</sub>", limits = c(0, 1), expand = c(0, .01), breaks = seq(0, 1, .2)) +
   theme(panel.grid.minor = element_blank(),
         legend.position = "none",
         legend.text = element_markdown(size = 14),
@@ -296,7 +298,7 @@ plot_tox_con <- ggplot() +
                      labels = if (couleur != "français") {waiver()} else {c("C<sub>n</sub> AA", "C<sub>n</sub> mono-bras", "C<sub>n</sub> multi-bras", "&epsilon; multi-bras")}) +
   scale_x_continuous(name = if (couleur != "français") {"Number of enrolled patients in each arm"} else {"Nombre de patients recrutés dans chaque bras"}, 
                      expand = c(0, 1), breaks = seq(0, 60, 15), limits = c(0, 60)) +
-  scale_y_continuous(name = "C<sub>n</sub> / &epsilon;<sub>Eff</sub>", limits = c(0, 1), expand = c(0, .01), breaks = seq(0, 1, .2)) +
+  scale_y_continuous(name = "C<sub>n</sub> / &epsilon;<sub>Tox</sub>", limits = c(0, 1), expand = c(0, .01), breaks = seq(0, 1, .2)) +
   theme(panel.grid.minor = element_blank(),
         legend.position = "none",
         legend.text = element_markdown(size = 14),
@@ -304,31 +306,43 @@ plot_tox_con <- ggplot() +
 
 ## C/ All 4 plots ----
 
-col_gauche <- (plot_spacer() / plot_spacer() / 
-                 textGrob(label = "Uncontrolled setting", rot = 90, gp = gpar(fontface = "bold", cex = 1.2)) / 
-                 textGrob(label = "Controlled setting", rot = 90, gp = gpar(fontface = "bold", cex = 1.2))) +
-  plot_layout(heights = c(.1, .4, 7, 7))
 col_milieu <- (plot_spacer() / 
                  textGrob(label = "Futility stopping", gp = gpar(fontface = "bold", cex = 1.2)) /
-                 (plot_fut_unc + theme(legend.position = "none")) /
-                 plot_fut_con) +
-  plot_layout(heights = c(.1, .4, 7, 7))
+                 (plot_fut_unc + theme(legend.position = "none"))) +
+  plot_layout(heights = c(.1, .4, 7))
 col_droite <- (plot_spacer() / 
                  textGrob(label = "Toxicity stopping", gp = gpar(fontface = "bold", cex = 1.2)) /
-                 plot_tox_unc /
-                 plot_tox_con) +
-  plot_layout(heights = c(.1, .4, 7, 7))
-plot_seuils <- (col_gauche | col_milieu | col_droite) + plot_layout(widths = c(.5, 7, 7))
+                 plot_tox_unc) +
+  plot_layout(heights = c(.1, .4, 7))
+plot_seuils <- (col_milieu | col_droite) + plot_layout(widths = c(7, 7))
 plot_seuils <- (plot_seuils / legende) + plot_layout(heights = c(9, 1))  +
-  plot_annotation(tag_levels = list(c("", "", "", "A", "C", "", "B", "D", ""))) &
+  plot_annotation(tag_levels = list(c("", "A", "", "B", ""))) &
   theme(plot.tag = element_text(face = "bold", size = 15))
+# col_gauche <- (plot_spacer() / plot_spacer() / 
+#                  textGrob(label = "Uncontrolled setting", rot = 90, gp = gpar(fontface = "bold", cex = 1.2)) / 
+#                  textGrob(label = "Controlled setting", rot = 90, gp = gpar(fontface = "bold", cex = 1.2))) +
+#   plot_layout(heights = c(.1, .4, 7, 7))
+# col_milieu <- (plot_spacer() / 
+#                  textGrob(label = "Futility stopping", gp = gpar(fontface = "bold", cex = 1.2)) /
+#                  (plot_fut_unc + theme(legend.position = "none")) /
+#                  plot_fut_con) +
+#   plot_layout(heights = c(.1, .4, 7, 7))
+# col_droite <- (plot_spacer() / 
+#                  textGrob(label = "Toxicity stopping", gp = gpar(fontface = "bold", cex = 1.2)) /
+#                  plot_tox_unc /
+#                  plot_tox_con) +
+#   plot_layout(heights = c(.1, .4, 7, 7))
+# plot_seuils <- (col_gauche | col_milieu | col_droite) + plot_layout(widths = c(.5, 7, 7))
+# plot_seuils <- (plot_seuils / legende) + plot_layout(heights = c(9, 1))  +
+#   plot_annotation(tag_levels = list(c("", "", "", "A", "C", "", "B", "D", ""))) &
+#   theme(plot.tag = element_text(face = "bold", size = 15))
 if (sauvegarder) {
   ggsave(plot_seuils,
          filename = "Outputs/seuils.png",
          device = "png", height = 11, width = 10)
   ggsave(plot_seuils,
-         filename = "Outputs/seuils.jpeg",
-         device = "jpeg", height = 11, width = 10)
+         filename = "Outputs/seuils_pres.jpeg",
+         device = "jpeg", height = 10, width = 15, units = "cm")
   ggsave(plot = plot_seuils, device = cairo_ps, units = "px",
          filename = "Outputs/seuils.eps", dpi = 800, width = 8000, height = 7000)
 }

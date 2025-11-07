@@ -14,7 +14,7 @@ library(flextable)
 library(officer)
 library(glue)
 
-theme_set(theme_light() +
+theme_set(theme_light(base_size = 16) +
             theme(legend.text = element_markdown(),
                   axis.title.y = element_markdown(),
                   panel.grid.major = element_line(color = "darkgrey", size = .7),
@@ -226,6 +226,99 @@ if (sauvegarder) {
   ggsave(plot_tot,
          filename = "Outputs/simu_vsref/plot_13scenar_barplot_2.jpeg",
          device = "jpeg", height = 13, width = 16)
+  ggsave(plot_tot, units = "px", dpi = 800,
+         filename = "Outputs/simu_vsref/plot_13scenar_barplot_2.eps",
+         device = cairo_ps, height = 10000, width = 12500)
+}
+if (clear) rm(plot1, plot2, plot_tot)
+# Only 4 thresholds for the poster
+theme_set(theme_light(base_size = 16) +
+            theme(legend.text = element_markdown(),
+                  axis.title.y = element_markdown(),
+                  panel.grid.major = element_line(color = "darkgrey", size = .7),
+                  axis.title.x = element_markdown(),
+                  plot.caption = element_markdown(hjust = 0),
+                  strip.background.x = element_blank(),
+                  strip.text.x = element_textbox(
+                    size = 16, face = "bold", linewidth = .8,
+                    color = "black", fill = "transparent", box.color = "black",
+                    halign = 0.5, linetype = 1, r = unit(5, "pt"), width = unit(.5, "npc"),
+                    padding = margin(2, 0, 1, 0), margin = margin(3, 3, 3, 3))))
+plot1 <- ggplot(data_ggplot_13vsref %>% 
+                  filter(!methode %in% c("Bonferroni C<sub>n</sub>", "Bonferroni &epsilon;", "&epsilon;<sup>s</sup>")) %>%
+                  filter(num_scenar %in% c(1, 2, 4, 6)) %>% 
+                  mutate(methode = droplevels(methode),
+                         methode = factor(methode, 
+                                   levels = c("C<sub>n</sub><sup>m</sup>", "C<sub>n</sub><sup>m,a</sup>", "C<sub>n</sub><sup>s</sup>", "&epsilon;<sup>m</sup>", "Bonferroni &epsilon;", "&epsilon;<sup>s</sup>"),
+                                   labels = c("C<sub>n</sub><sup>m</sup>", "C<sub>n</sub><sup>m,a</sup>", "C<sub>n</sub>", "&epsilon;<sup>m</sup>", "Bonferroni &epsilon;", "&epsilon;<sup>s</sup>")))) +
+  geom_col(aes(x = num_scenar, y = rejet_h0, fill = etiquettes), color = "black",
+           position = position_dodge2(width = .45), show.legend = FALSE) +
+  geom_vline(xintercept = c(1:3 + .5), color = "#b1b0b1", linetype = "dashed") +
+  geom_richtext(data = tab_Ralpha %>%
+                  filter(!methode %in% c("Bonferroni C<sub>n</sub>", "Bonferroni &epsilon;", "Monoarm &epsilon;")) %>% 
+                  mutate(methode = str_replace_all(methode, "Multiarm", "Multi-arm"),
+                         methode = str_replace_all(methode, "Monoarm", "Single-arm"),
+                         methode = str_replace_all(methode, "^Holm (.*)$", "Multi-arm \\1<sup>(aa)</sup>"), 
+                         methode = factor(methode, 
+                                          levels = c("Multi-arm C<sub>n</sub>", "Multi-arm C<sub>n</sub><sup>(aa)</sup>", "Single-arm C<sub>n</sub>", "Multi-arm &epsilon;", "Bonferroni &epsilon;", "Single-arm &epsilon;"),
+                                          labels = c("C<sub>n</sub><sup>m</sup>", "C<sub>n</sub><sup>m,a</sup>", "C<sub>n</sub>", "&epsilon;<sup>m</sup>", "Bonferroni &epsilon;", "&epsilon;<sup>s</sup>"))), 
+                aes(x = 4, y = .35, 
+                    label = paste0("Estimated FWER: ", global_alpha * 100, "%")), 
+                hjust = 0, label.color = NA, size = 4) +
+  facet_wrap(vars(methode), ncol = 2) +
+  theme(panel.grid.major.y = element_blank(),
+        panel.grid.major.x = element_line(color = "darkgrey", size = .7),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        panel.grid.minor.y = element_blank()) +
+  guides(fill = guide_legend(reverse = TRUE)) +
+  scale_y_continuous(breaks = seq(0, 1, .2), labels = percent_format(), expand = c(0, 0), limits = c(0, .9)) +
+  scale_fill_manual(values = c("#FFFFFF", "#113C51", "#B4CB65")) +
+  coord_flip() +
+  labs(y = "Proportion of conclusion to efficacy and no toxicity",
+       x = NULL,
+       fill = "Treatment arms")
+plot2 <- ggplot(data_ggplot_13vsref %>% 
+                  filter(methode %in% c("C<sub>n</sub><sup>m</sup>", "C<sub>n</sub><sup>s</sup>")) %>% 
+                  filter(num_scenar %in% c(1, 2, 4, 6)) %>%
+                  mutate(etiquettes = factor(str_remove(etiquettes, "^Arm "), levels = c("C", "B", "A")),
+                         num_scenar = as.character(num_scenar),
+                         num_scenar = case_when(num_scenar == 4 ~ 3,
+                                                num_scenar == 6 ~ 4, 
+                                                TRUE ~ as.numeric(num_scenar)),
+                         label_scenar = paste0("Scenario ", num_scenar, ": Arm"),
+                         label_scenar = factor(label_scenar, levels = (unique(label_scenar))))) +
+  geom_text(aes(x = 5 - num_scenar, y = 1.1, label = label_scenar), hjust = 0) +
+  map(0:3, ~ annotate(geom = "segment", x = 0.7 + .x, xend = 1.3 + .x, y = 1.29, yend = 1.29)) +
+  geom_richtext(aes(x = num_scenar, y = 1.3, label = etiquettes, color = etiquettes), hjust = 0, position = position_dodge2(width = .9), fill = NA, label.color = NA) +
+  facet_wrap(vars(methode), ncol = 1) +
+  scale_color_manual(values = c("black", "black", "black")) +
+  coord_flip(clip = "off") +
+  ylim(c(1, 1.3)) +
+  labs(x = NULL,
+       y = " ") +
+  theme(legend.position = "none",
+        axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        strip.text.x = element_textbox(
+          size = 12, 
+          color = "transparent", fill = "transparent", box.color = "transparent",
+          halign = 0.5, linetype = 1, r = unit(3, "pt"), width = unit(0.75, "npc"),
+          padding = margin(2, 0, 1, 0), margin = margin(3, 3, 3, 3)))
+plot_tot <- plot2 + plot1 + plot_layout(ncol = 2, widths = c(2, 5))
+if (sauvegarder) {
+  ggsave(plot_tot,
+         filename = "Outputs/simu_vsref/plot_13scenar_barplot_2.png",
+         device = "png", height = 13, width = 16)
+  ggsave(plot_tot,
+         filename = "Outputs/simu_vsref/plot_13scenar_barplot_pres.jpeg",
+         device = "jpeg", height = 15, width = 24, units = "cm")
   ggsave(plot_tot, units = "px", dpi = 800,
          filename = "Outputs/simu_vsref/plot_13scenar_barplot_2.eps",
          device = cairo_ps, height = 10000, width = 12500)

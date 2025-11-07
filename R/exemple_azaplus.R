@@ -7,11 +7,12 @@
 
 library(tidyverse)
 library(lubridate)
-devtools::load_all("E:/multibrasBOP2")
-library(multibrasBOP2)
+# devtools::load_all("E:/multibrasBOP2")
+devtools::load_all("C:/Users/gmulier/Documents/Github/multibrasBOP2/")
+# library(multibrasBOP2)
 library(ggtext)
 
-theme_set(theme_light() +
+theme_set(theme_light(base_size = 16) +
             theme(strip.background.x = element_blank(),
                   strip.background.y = element_blank(),
                   strip.text.x = element_textbox(
@@ -308,21 +309,22 @@ Graphe <- ggplot(resultats_4ana4 %>%
   geom_line(data = resultats_4ana4, aes(x = analyse, y = p_eff, color = ttt, linetype = "Efficacy"), size = 1) +
   geom_point(data = resultats_4ana4, aes(x = analyse, y = p_tox, color = ttt), size = 3) +
   geom_line(data = resultats_4ana4, aes(x = analyse, y = p_tox, color = ttt, linetype = "Toxicity"), size = 1) +
-  geom_text(data = text_pat, aes(x = analyse - .15, y = .15, label = nb_patients), hjust = 0, size = 3.5) +
+  # geom_text(data = text_pat, aes(x = analyse - .15, y = .15, label = nb_patients), hjust = 0, size = 3.5) +
   scale_x_continuous(name = NULL, expand = c(0, 0), breaks = c(1, 2, 3, 4), 
-                     label = function(x) paste0("Analysis n°", x)) +
+                     label = function(x) paste0("Ana n°", x)) +
   scale_y_continuous(name = "Pr(p<sub>eff,k</sub>>p<sub>eff,0</sub>|D<sub>n</sub>) or Pr(p<sub>tox,k</sub>&le;p<sub>tox,0</sub>|D<sub>n</sub>)", expand = c(0, 0)) +
   scale_color_manual(name = "Treatment arm", values = c("#7570b3", "#d95f02")) +
   labs(linetype = "Measure") +
   facet_wrap(vars(ttt)) +
   theme(axis.title.y = element_markdown(size = 14),
         axis.text.x = element_text(size = 13),
-        axis.text.y = element_text(size = 13))
+        axis.text.y = element_text(size = 13),
+        legend.position = "bottom")
 
 ggsave(Graphe, units = "px", dpi = 800,
        filename = "Outputs/azaplus.eps",
        device = cairo_ps, height = 7000, width = 10000)
 ggsave(Graphe, units = "in",
-       filename = "Outputs/azaplus.jpeg",
-       device = "jpeg", height = 10, width = 12)
+       filename = "Outputs/azaplus_pres.jpeg",
+       device = "jpeg", height = 5, width = 9)
 
